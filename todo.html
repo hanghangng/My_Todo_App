@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <title>My Todo App</title>
+  </head>
+  <body>
+    <input id="todo-text-box" type="text" />
+    <input id="date-picker" type="date" />
+    <button onclick="addTodoController()">Add Todo</button>
+    <div id="todo-list"></div>
+    <script>
+      // Model=> todos array
+      // If local storage has a todo array, then use it
+      // else use the default array
+      let todos;
+      //Retrieve localStorage
+      const savedTodos = JSON.parse(localStorage.getItem("todos"));
+      if (Array.isArray(savedTodos)) {
+        todos = savedTodos;
+      } else {
+        todos = [
+          { title: "Get groceries", dueDate: "2023-02-21", id: "id1" },
+          { title: "Wash car", dueDate: "2023-02-21", id: "id2" },
+          { title: "Make dinner", dueDate: "2023-02-21", id: "id3" },
+        ];
+      }
+
+      //Create todo
+      function addTodoModel(todoTitle, dueDate) {
+        const id = "" + new Date().getTime();
+
+        todos.push({
+          title: todoTitle,
+          dueDate: dueDate,
+          id: id,
+        });
+
+        saveTodos();
+      }
+
+      //Delete todo
+      function deleteTodoModel(idToDelete) {
+        todos = todos.filter(function (todo) {
+          if (todo.id === idToDelete) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+
+        saveTodos();
+      }
+
+      //Model:Save and retrieve
+      function saveTodos() {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      // View: renders the todo list in the UI
+      function renderView(todoTitle) {
+        //reset the todo-list
+        document.getElementById("todo-list").innerHTML = "";
+
+        todos.forEach((todo) => {
+          const element = document.createElement("div"); //create a div
+          element.innerText = todo.title + " " + todo.dueDate; //change the text of the div to todo1
+
+          const deleteButton = document.createElement("button");
+          deleteButton.innerText = "Delete";
+          deleteButton.style = "margin-left: 12px;";
+          deleteButton.onclick = deleteTodoController;
+          deleteButton.id = todo.id;
+
+          element.appendChild(deleteButton);
+
+          const todoList = document.getElementById("todo-list");
+          todoList.appendChild(element); //add the div to the body
+        });
+      }
+
+      // Controller: adds a new todo to the model and updates the view
+      function addTodoController() {
+        const textbox = document.getElementById("todo-text-box");
+        const todoTitle = textbox.value;
+
+        const datePicker = document.getElementById("date-picker");
+        const dueDate = datePicker.value;
+
+        addTodoModel(todoTitle, dueDate);
+
+        renderView();
+      }
+
+      // Controller: removes a todo from the model and updates the view
+      function deleteTodoController(event) {
+        const deleteButton = event.target;
+        const idToDelete = deleteButton.id;
+
+        deleteTodoModel(idToDelete);
+
+        renderView();
+      }
+
+      //render initial view
+      renderView();
+    </script>
+  </body>
+</html>
